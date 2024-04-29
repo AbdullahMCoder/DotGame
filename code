@@ -1,0 +1,124 @@
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.EventListener;
+import java.util.Random;
+
+import javax.swing.*;
+public class DotGame{
+    String[][] board = new String[5][5];
+    String character = "O";
+    String apple = "A";
+    int score = 0;
+    Random random = new Random();
+
+    public void display(){
+        for(int row=0;row<board.length;row++){
+            for(int col=0;col<board[0].length;col++){
+                System.out.print(board[row][col]);
+            }
+            System.out.println();
+        }
+    }
+    public int[] findItem(String item){
+        for(int row=0;row<board.length;row++){
+            for(int col=0;col<board[0].length;col++){
+                if(board[row][col]==item){
+                    return new int[]{row,col};
+                }
+            }
+        }
+        return null;
+    }
+    public void fill(){
+        for(int row=0;row<board.length;row++){
+            for(int col=0;col<board[0].length;col++){
+                board[row][col] = " ";
+            }
+        }
+    }
+    public void clearTerminal(){
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+    public void randomlyPlaceApple(){
+        int randomRow = random.nextInt(board.length);
+        int randomCol = random.nextInt(board[0].length);
+        while(randomRow==findItem(character)[0]|randomCol==findItem(character)[1]){
+            randomRow = random.nextInt(board.length);
+            randomCol = random.nextInt(board[0].length);
+        }
+
+        board[randomRow][randomCol] = apple;
+    }
+    public DotGame(){
+        fill();
+        board[random.nextInt(board.length)][random.nextInt(board[0].length)] = character;
+        randomlyPlaceApple();
+        display();
+        JFrame frame = new JFrame();
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e){
+                if(e.getKeyCode()==KeyEvent.VK_UP){
+                    int charRow = findItem(character)[0];
+                    int charCol = findItem(character)[1];
+
+                    if(charRow-1<0){
+                        return;
+                    }
+                    board[charRow][charCol] = " ";
+                    board[charRow-1][charCol] = character;
+                } else if(e.getKeyCode()==KeyEvent.VK_DOWN){
+                    int charRow = findItem(character)[0];
+                    int charCol = findItem(character)[1];
+
+                    if(charRow+1>=board.length){
+                        return;
+                    }
+                    board[charRow][charCol] = " ";
+                    board[charRow+1][charCol] = character;
+                } else if(e.getKeyCode()==KeyEvent.VK_LEFT){
+                    int charRow = findItem(character)[0];
+                    int charCol = findItem(character)[1];
+
+                    if(charCol-1<0){
+                        return;
+                    }
+
+                    board[charRow][charCol] = " ";
+                    board[charRow][charCol-1] = character;
+                } else if(e.getKeyCode()==KeyEvent.VK_RIGHT){
+                    int charRow = findItem(character)[0];
+                    int charCol = findItem(character)[1];
+
+                    if(charCol+1>=board[0].length){
+                        return;
+                    }
+                    board[charRow][charCol] = " ";
+                    board[charRow][charCol+1] = character;
+                }
+                clearTerminal();
+                if(findItem(apple)==null){
+                    score += 1;
+                    randomlyPlaceApple();
+                }
+
+                display();
+                System.out.println("Score is: "+score);
+            }
+            @Override
+            public void keyReleased(KeyEvent e){
+
+            }
+            @Override
+            public void keyTyped(KeyEvent e){
+                
+            }
+        });
+        frame.setVisible(true);
+    }
+    public static void main(String[] args){
+        DotGame run = new DotGame();
+    }
+}
